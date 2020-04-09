@@ -10,46 +10,60 @@ event zeek_init()
 
 event http_header(c: connection, is_orig: bool, name: string, value: string)
     {
-        local UserAgent = "User-Agent";
-        local HeaderName = "";
-        local counterchar = 1;
-        for (character in value)
-        {
-            if ( counter <= 10)
-                {
-                    HeaderName += character;
-                }
-        }
-        if( HeaderName = UserAgent )
+        if( name == "User-Agent" )# if header's name = User-Agent
             {
-                local x = -1;
+                local find = 1;
                 for ( ip in vecip )
                     {
                         if ( vecip[ip] == c$id$orig_h)#find same ip in vecip
                             {
-                                if ( vecagentnum == 1 )
+                                if ( vecagentnum[ip] == 1 )
                                     {
-
+                                        if ( vecagent1[ip] != value )
+                                            {
+                                                vecagent2[ip] = value;
+                                                vecagentnum[ip] = 2;
+                                            }
                                     }
-                                if ( vecagentnum == 2 )
+                                if ( vecagentnum[ip] == 2 )
                                     {
-
+                                        if (( vecagent1[ip] != value )&&( vecagent2[ip] != value))
+                                            {
+                                                vecagent3[ip] = value;
+                                                vecagentnum[ip] = 3;
+                                            }
                                     }
-                                if ( vecagentnum == 3 )
+                                if ( vecagentnum[ip] == 3 )
                                     {
-                                        
+                                        #do nothing
                                     }
-                                x = ip;
                             }
                         else#do not find the same one
                             {
-                                #do nothing
+                               find = 0;#means it is a new origin ip
                             }
                     } 
+                if ( find == 0 )
+                    {
+                        vecip[|vecip|] = c$id$orig_h;#set the new ip and it's user-agent's name;
+                        vecagent1[|vecip|-1] = value;
+                        vecagentnum[|vecip|-1] = 1;
+                    }
             }
         else
             {
                 #do nothing;
             }
     
+    }
+
+event zeek_done()
+    {
+        for ( x in vecagentnum)
+            {
+                if ( vecagentnum[x] == 3 )
+                    {
+                        print fmt("%s is a proxy", vecip[x]);
+                    }
+            }
     }
