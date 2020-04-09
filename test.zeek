@@ -9,10 +9,11 @@ event zeek_init()
         #print "zeek init";
     }
 
-event http_header(c: connection, is_orig: bool, name: string, value: string)
+event http_header(c: connection, is_orig: bool, name: string, value1: string)
     {
         if( name == "USER-AGENT" )# if header's name = User-Agent
             {
+                value = to_lower(value1);
             	#print "userAgent comes";
             	#++numofpack;
                 local find = -1;
