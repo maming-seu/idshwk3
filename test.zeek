@@ -6,7 +6,7 @@ global vecagentnum : vector of int={};
 #global numofpack = 0;
 event zeek_init()
     {
-        print "zeek init";
+        #print "zeek init";
     }
 
 event http_header(c: connection, is_orig: bool, name: string, value: string)
