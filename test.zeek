@@ -13,7 +13,7 @@ event http_header(c: connection, is_orig: bool, name: string, value1: string)
     {
         if( name == "USER-AGENT" )# if header's name = User-Agent
             {
-                value = to_lower(value1);
+                local value = to_lower(value1);
             	#print "userAgent comes";
             	#++numofpack;
                 local find = -1;
